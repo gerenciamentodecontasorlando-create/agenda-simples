@@ -1,397 +1,1304 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>agenda btx · bloco simples</title>
-    <style>
-        /* ███████████████████████████████████████████████████████████████ */
-        /*  META AZUL – BLOCÃO DE NOTAS – CALENDÁRIO + FOTO + MEMÓRIA     */
-        /*  IMPRESSÃO COM BORDA COMPLETA NA PÁGINA                        */
-        /* ███████████████████████████████████████████████████████████████ */
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Agenda BTX</title>
+  <style>
+    :root{
+      --bg:#070b14;
+      --panel:#0b1224;
+      --panel2:#0a1020;
+      --line:rgba(130,170,255,.18);
+      --line2:rgba(130,170,255,.28);
+      --txt:#eaf1ff;
+      --muted:rgba(234,241,255,.70);
+      --accent:#63a7ff;
+      --accent2:#2f6bff;
+      --good:#34d399;
+      --warn:#fbbf24;
+      --bad:#fb7185;
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      --r:16px;
+      --shadow: 0 10px 35px rgba(0,0,0,.45);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
 
-        body {
-            background: #cad9ed;   /* azul suave de fundo – tom institucional */
-            font-family: 'Courier New', Courier, 'Lucida Sans Typewriter', monospace;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 2rem 1.2rem;
-        }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background:
+        radial-gradient(1000px 600px at 20% 10%, rgba(99,167,255,.10), transparent 55%),
+        radial-gradient(900px 600px at 85% 20%, rgba(47,107,255,.08), transparent 55%),
+        radial-gradient(900px 600px at 50% 95%, rgba(99,167,255,.08), transparent 60%),
+        linear-gradient(180deg, #050812 0%, #060914 55%, #040610 100%);
+      color:var(--txt);
+      overflow:hidden; /* evita “tremedeira” em alguns Android */
+    }
 
-        /* ──── O GRANDE BLOCO DE NOTAS – SIMPLES, LIMPO, AZUL ──── */
-        .bloco-btx {
-            max-width: 950px;
-            width: 100%;
-            background: white;
-            
-            /* BORDA QUE GIRA EM TORNO DA PÁGINA — COMPLETA, IGUAL DOS 4 LADOS */
-            border: 8px solid #003f6b;    /* borda grossa azul-marinho – envolve tudo */
-            
-            box-shadow: 0 10px 0 #001c33;  /* sombra pra dar peso de caderno */
-            padding: 2rem 2rem 1.8rem 2rem;
-            position: relative;
-        }
+    /* Top bar */
+    .topbar{
+      height:64px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(11,18,36,.92), rgba(10,16,32,.75));
+      backdrop-filter: blur(10px);
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
 
-        /* ─── TÍTULO EXATO: agenda btx ─── CAIXA BAIXA, AZUL META */
-        .titulo-agenda {
-            color: #003f6b;
-            font-size: 2.4rem;
-            font-weight: 700;
-            text-transform: lowercase;
-            letter-spacing: -1px;
-            border-bottom: 4px solid #003f6b;
-            padding-bottom: 0.35rem;
-            margin-bottom: 1.8rem;
-            font-family: 'Courier New', monospace;
-            display: inline-block;
-            border-bottom-style: double;
-        }
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      min-width: 220px;
+    }
+    .logo{
+      width:34px;height:34px;border-radius:12px;
+      background:
+        radial-gradient(12px 12px at 30% 30%, rgba(234,241,255,.55), transparent 60%),
+        linear-gradient(135deg, rgba(99,167,255,.95), rgba(47,107,255,.55));
+      box-shadow: 0 8px 22px rgba(47,107,255,.22);
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .brand h1{
+      font-size:16px; margin:0; letter-spacing:.3px;
+      line-height:1.05;
+    }
+    .brand .sub{
+      font-size:12px;color:var(--muted); margin-top:2px;
+      font-family:var(--mono);
+    }
 
-        /* ─── LAYOUT DO DIA – CALENDÁRIO + FOTO PEQUENA + MEMÓRIA ─── */
-        .container-calendario {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
+    .actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
 
-        /* --- CALENDÁRIO: ÚNICO MÊS, PARECE FOLHA DE PAREDE --- */
-        .calendario-unico {
-            flex: 2;
-            min-width: 300px;
-            border-left: 6px solid #1e4c7a;
-            border-top: 6px solid #1e4c7a;
-            border-right: 2px solid #b4c9e0;
-            border-bottom: 2px solid #b4c9e0;
-            background: #f7fbff;
-            padding: 1.3rem 1rem 1.5rem 1rem;
-        }
+    button, .btn{
+      appearance:none;
+      border:1px solid var(--line2);
+      color:var(--txt);
+      background: rgba(8,12,25,.65);
+      padding:9px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      box-shadow: 0 10px 20px rgba(0,0,0,.25);
+      transition: transform .06s ease, border-color .2s ease, background .2s ease;
+      font-size:13px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:hover{border-color:rgba(99,167,255,.55)}
+    button:active{transform: translateY(1px)}
+    .primary{
+      background: linear-gradient(135deg, rgba(99,167,255,.25), rgba(47,107,255,.18));
+      border-color: rgba(99,167,255,.55);
+    }
+    .danger{border-color: rgba(251,113,133,.55)}
+    .good{border-color: rgba(52,211,153,.55)}
+    .mutedBtn{opacity:.9}
 
-        .mes-rotulo {
-            color: #0f416e;
-            font-size: 1.9rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            font-family: 'Courier New', monospace;
-            border-bottom: 3px solid #1e4c7a;
-            padding-bottom: 0.3rem;
-        }
+    .pill{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(8,12,25,.35);
+      color:var(--muted);
+      font-size:12px;
+      font-family:var(--mono);
+      white-space:nowrap;
+    }
 
-        .dias-semana {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            margin: 1rem 0 0.5rem 0;
-            color: #00375c;
-            font-weight: 700;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            border-bottom: 1px solid #7ca2c4;
-            padding-bottom: 0.4rem;
-        }
+    /* App layout */
+    .wrap{
+      height: calc(100% - 64px);
+      display:grid;
+      grid-template-rows: 1fr 320px;  /* topo editor / baixo agenda+calendário */
+      gap:12px;
+      padding:12px;
+      max-width:1400px;
+      margin:0 auto;
+    }
 
-        .dias-grade {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-        }
+    .panel{
+      background: linear-gradient(180deg, rgba(11,18,36,.85), rgba(10,16,32,.70));
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      min-height:0; /* crucial pra grid */
+    }
 
-        .dia-caixa {
-            background: white;
-            border-left: 3px solid #184a6e;
-            border-top: 3px solid #184a6e;
-            border-right: 1px solid #cedceb;
-            border-bottom: 1px solid #cedceb;
-            min-height: 70px;
-            padding: 6px 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            font-size: 0.8rem;
-            color: #003153;
-        }
+    /* Editor (parte superior) */
+    .editorHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 12px;
+      border-bottom:1px solid var(--line);
+      background: rgba(0,0,0,.12);
+    }
+    .editorHead .left{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:0;
+    }
+    .dateLine{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .dateTitle{
+      font-size:14px;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .small{
+      color:var(--muted);
+      font-size:12px;
+      font-family:var(--mono);
+    }
+    .status{
+      font-size:12px;
+      font-family:var(--mono);
+      color: var(--muted);
+    }
+    .status.ok{color: rgba(52,211,153,.9)}
+    .status.warn{color: rgba(251,191,36,.95)}
+    .status.bad{color: rgba(251,113,133,.95)}
 
-        .numero {
-            font-weight: 800;
-            color: #0f3f60;
-            background: #eaf1fc;
-            padding: 0 4px 2px 4px;
-            margin-bottom: 4px;
-            border-bottom: 2px dotted #235f88;
-            width: 100%;
-        }
+    .editorBody{
+      height: calc(100% - 58px);
+      display:grid;
+      grid-template-columns: 1fr 340px;
+      min-height:0;
+    }
 
-        /* ---- LOCAL PARA FOTO – PEQUENA, SIMPLES, APARECE COMPACTA NA IMPRESSÃO ---- */
-        .area-foto-pequena {
-            flex: 1;
-            min-width: 200px;
-            background: #f2f7ff;
-            border-left: 8px solid #003f6b;
-            border-top: 8px solid #003f6b;
-            border-right: 2px solid #a7c1dc;
-            border-bottom: 2px solid #a7c1dc;
-            padding: 1.2rem 1rem;
-            display: flex;
-            flex-direction: column;
-        }
+    .noteArea{
+      padding:12px;
+      border-right:1px solid var(--line);
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+      gap:10px;
+    }
+    textarea{
+      width:100%;
+      height:100%;
+      min-height:0;
+      resize:none;
+      outline:none;
+      border-radius:14px;
+      border:1px solid rgba(99,167,255,.20);
+      background: rgba(5,8,18,.55);
+      color:var(--txt);
+      padding:14px;
+      line-height:1.45;
+      font-size:14px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+    }
 
-        .titulo-secao {
-            color: #003153;
-            font-size: 1.1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            border-bottom: 3px solid #003f6b;
-            padding-bottom: 0.4rem;
-            margin-bottom: 1rem;
-            letter-spacing: 2px;
-        }
+    .side{
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+      gap:10px;
+    }
+    .boxTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .boxTitle h2{
+      margin:0;
+      font-size:13px;
+      letter-spacing:.25px;
+    }
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+      font-family:var(--mono);
+    }
 
-        .simulacro-foto {
-            background: #deecfc;
-            border-left: 5px solid #0b3752;
-            border-top: 5px solid #0b3752;
-            border-right: 1px solid #809fc2;
-            border-bottom: 1px solid #809fc2;
-            padding: 0.9rem 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            color: #003f5c;
-            font-size: 0.7rem;
-            font-weight: 600;
-            max-width: 100%;
-        }
+    .attachList{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background: rgba(5,8,18,.35);
+      overflow:auto;
+      min-height:0;
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
 
-        .icone-foto {
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-            color: #1e4562;
-        }
+    .attachItem{
+      border:1px solid rgba(99,167,255,.18);
+      border-radius:14px;
+      padding:10px;
+      background: rgba(8,12,25,.40);
+      display:grid;
+      grid-template-columns: 54px 1fr auto;
+      gap:10px;
+      align-items:center;
+    }
+    .thumb{
+      width:54px;height:54px;border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.20);
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;
+    }
+    .thumb img{width:100%;height:100%;object-fit:cover}
+    .meta{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+    }
+    .meta .name{
+      font-size:13px;
+      font-weight:650;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .meta .type{
+      font-size:12px;
+      color:var(--muted);
+      font-family:var(--mono);
+    }
+    .iconBtn{
+      padding:8px 10px;
+      border-radius:12px;
+      font-size:12px;
+    }
 
-        .texto-foto {
-            background: white;
-            padding: 0.3rem 0.9rem;
-            border-left: 4px solid #1e4c7a;
-            border-top: 4px solid #1e4c7a;
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            margin-top: 5px;
-        }
+    /* Bottom: left notes list + right calendar */
+    .bottom{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:12px;
+      min-height:0;
+    }
 
-        /* ---- MEMÓRIA BOA – VISUAL SIMPLES, TEMA AZUL ---- */
-        .memoria-boa {
-            margin-top: 1.8rem;
-            margin-bottom: 1.5rem;
-            border-left: 8px solid #00335c;
-            border-top: 5px solid #00335c;
-            border-right: 2px solid #b3cde0;
-            border-bottom: 2px solid #b3cde0;
-            background: #e8f0fe;
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1.2rem;
-        }
+    .notesPanelHead{
+      padding:12px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      background: rgba(0,0,0,.10);
+    }
+    .notesPanelHead h2{margin:0;font-size:13px;letter-spacing:.25px}
+    .search{
+      display:flex; gap:8px; align-items:center;
+      min-width:0;
+    }
+    input[type="search"]{
+      width: 260px;
+      max-width: 48vw;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(99,167,255,.22);
+      background: rgba(5,8,18,.45);
+      color: var(--txt);
+      outline:none;
+      font-size:13px;
+    }
 
-        .memoria-badge {
-            background: white;
-            color: #002d55;
-            font-size: 1rem;
-            font-weight: 700;
-            padding: 0.5rem 1.2rem;
-            border-left: 6px solid #003b64;
-            border-top: 6px solid #003b64;
-            border-right: 1px solid #9cb6d3;
-            border-bottom: 1px solid #9cb6d3;
-            font-family: 'Courier New', monospace;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    .notesList{
+      height: calc(100% - 52px);
+      overflow:auto;
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .noteCard{
+      border:1px solid rgba(99,167,255,.18);
+      border-radius:14px;
+      background: rgba(8,12,25,.35);
+      padding:12px;
+      cursor:pointer;
+      transition: border-color .15s ease, transform .06s ease;
+    }
+    .noteCard:hover{border-color:rgba(99,167,255,.40)}
+    .noteCard:active{transform: translateY(1px)}
+    .noteCard .row{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      margin-bottom:6px;
+    }
+    .noteCard .d{
+      font-family:var(--mono);
+      font-size:12px;
+      color: rgba(234,241,255,.85);
+    }
+    .noteCard .tag{
+      font-family:var(--mono);
+      font-size:11px;
+      color: rgba(99,167,255,.95);
+      border:1px solid rgba(99,167,255,.28);
+      padding:5px 8px;
+      border-radius:999px;
+      background: rgba(99,167,255,.08);
+      white-space:nowrap;
+    }
+    .noteCard .preview{
+      font-size:13px;
+      color: var(--muted);
+      overflow:hidden;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      line-height:1.35;
+    }
 
-        .capacidade {
-            display: flex;
-            gap: 1.5rem;
-            flex-wrap: wrap;
-        }
+    /* Calendar */
+    .calHead{
+      padding:12px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: rgba(0,0,0,.10);
+    }
+    .calHead .month{
+      font-weight:750;
+      letter-spacing:.2px;
+      font-size:13px;
+    }
+    .calGrid{
+      height: calc(100% - 52px);
+      padding:12px;
+      display:grid;
+      grid-template-rows: auto 1fr;
+      gap:10px;
+      min-height:0;
+    }
+    .dow{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap:6px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size:11px;
+    }
+    .days{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap:6px;
+      min-height:0;
+      overflow:auto;
+      padding-right:2px;
+    }
+    .day{
+      border:1px solid rgba(99,167,255,.14);
+      background: rgba(8,12,25,.28);
+      border-radius:12px;
+      padding:10px 8px;
+      cursor:pointer;
+      min-height:52px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:8px;
+      transition: border-color .15s ease, transform .06s ease, background .15s ease;
+    }
+    .day:hover{border-color:rgba(99,167,255,.35)}
+    .day:active{transform: translateY(1px)}
+    .day .n{
+      font-family:var(--mono);
+      font-size:12px;
+      color: rgba(234,241,255,.9);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:6px;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:99px;
+      background: rgba(99,167,255,.85);
+      box-shadow: 0 0 0 3px rgba(99,167,255,.12);
+      flex:0 0 auto;
+    }
+    .day.muted{
+      opacity:.45;
+      filter:saturate(.9);
+    }
+    .day.sel{
+      border-color: rgba(99,167,255,.65);
+      background: rgba(99,167,255,.10);
+    }
 
-        .chip {
-            background: white;
-            border-left: 4px solid #144a6f;
-            border-top: 4px solid #144a6f;
-            padding: 0.4rem 1rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #01263b;
-        }
+    /* Responsivo */
+    @media (max-width: 980px){
+      body{overflow:auto}
+      .wrap{height:auto; min-height: calc(100% - 64px); grid-template-rows: auto auto}
+      .editorBody{grid-template-columns: 1fr}
+      .noteArea{border-right:none; border-bottom:1px solid var(--line)}
+      .bottom{grid-template-columns: 1fr}
+    }
 
-        /* ---- RODAPÉ INFERIOR DIREITO: BTX TECH + TELEFONE ---- */
-        .rodape-direito {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 2rem;
-            border-top: 3px solid #003f6b;
-            padding-top: 0.8rem;
-            width: 100%;
-        }
+    /* PRINT */
+    @media print{
+      body{
+        background:#fff !important;
+        color:#000 !important;
+        overflow:visible !important;
+      }
+      .topbar, .bottom, .panel:not(#printPanel){display:none !important;}
+      #printPanel{
+        display:block !important;
+        border:none !important;
+        box-shadow:none !important;
+        background:#fff !important;
+      }
+      .printWrap{
+        padding: 10mm 10mm 12mm 10mm;
+      }
+      .printTitle{
+        font-size:16pt;
+        font-weight:800;
+        margin:0 0 8px 0;
+      }
+      .printMeta{
+        font-family: var(--mono);
+        font-size:10pt;
+        margin-bottom:10px;
+        color:#333;
+      }
+      .printNote{
+        border:1px solid #111;
+        padding:10px;
+        border-radius:10px;
+        white-space:pre-wrap;
+        word-break:break-word;
+        font-size:11.5pt;
+        line-height:1.4;
+        min-height: 90mm;
+      }
+      .printAtt{
+        margin-top:10px;
+        border:1px solid #111;
+        border-radius:10px;
+        padding:8px;
+      }
+      .printAtt h3{
+        margin:0 0 6px 0;
+        font-size:11pt;
+      }
+      .attRow{
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+      }
+      .attMini{
+        width: 32mm;
+        border:1px solid #666;
+        border-radius:8px;
+        padding:6px;
+        font-size:9pt;
+        overflow:hidden;
+      }
+      .attMini img{
+        width:100%;
+        height: 22mm;
+        object-fit:cover;
+        border-radius:6px;
+        border:1px solid #bbb;
+        display:block;
+        margin-bottom:6px;
+      }
+      .attMini .fn{
+        font-family: var(--mono);
+        font-size:8.5pt;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+      .noPrintNote{
+        font-family: var(--mono);
+        color:#666;
+        font-size:10pt;
+      }
+      @page { margin: 10mm; }
+    }
 
-        .assinatura-btx {
-            background: #eef4fd;
-            border-left: 8px solid #003153;
-            border-top: 3px solid #003153;
-            padding: 0.6rem 1.5rem;
-            text-align: right;
-            color: #00223b;
-            font-weight: 700;
-            font-size: 0.9rem;
-            letter-spacing: 1.5px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .fone {
-            font-size: 1.1rem;
-            color: #001e3a;
-            font-weight: 800;
-            margin-top: 5px;
-            letter-spacing: 3px;
-        }
-
-        /* ──── IMPRESSÃO: BORDA FORTE EM TODA A PÁGINA, TUDO AZUL VISÍVEL ──── */
-        @media print {
-            body {
-                background: white;
-                padding: 0.1in;
-            }
-            .bloco-btx {
-                border: 8px solid #003f6b !important;  /* BORDA COMPLETA AO REDOR DA PÁGINA */
-                box-shadow: none;
-                padding: 0.4in;
-            }
-            .calendario-unico, .area-foto-pequena, .memoria-boa, .assinatura-btx {
-                border-color: #003f6b;
-                break-inside: avoid;
-            }
-            .rodape-direito {
-                border-top: 3px solid #003f6b;
-            }
-            .simulacro-foto {
-                border-color: #0b3752;
-            }
-        }
-
-        /* pequeno ajuste responsivo */
-        @media (max-width: 700px) {
-            .container-calendario {
-                flex-direction: column;
-            }
-        }
-    </style>
+    /* hidden file inputs */
+    input[type="file"]{display:none}
+  </style>
 </head>
+
 <body>
-    <!-- BLOCÃO PRINCIPAL – BORDA EM VOLTA IGUAL EM TUDO (AZUL META) -->
-    <div class="bloco-btx">
-        
-        <!-- título exato: agenda btx (caixa baixa) -->
-        <div class="titulo-agenda">agenda btx</div>
-
-        <!-- CONTEÚDO DOIS: CALENDÁRIO MENSAL + ESPAÇO FOTO PEQUENA -->
-        <div class="container-calendario">
-            
-            <!-- CALENDÁRIO – ÚNICO MÊS VISÍVEL, PARECE FOLHA DE MÊS (JANEIRO EXEMPLO) -->
-            <div class="calendario-unico">
-                <div class="mes-rotulo">JANEIRO</div>
-                <div class="dias-semana">
-                    <span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span><span>DOM</span>
-                </div>
-                <div class="dias-grade">
-                    <!-- DIAS (1 a 31) – alguns com mini anexo de texto para lembrete, mas simples -->
-                    <div class="dia-caixa"><span class="numero">1</span>📎</div>
-                    <div class="dia-caixa"><span class="numero">2</span></div>
-                    <div class="dia-caixa"><span class="numero">3</span>🖼️</div>
-                    <div class="dia-caixa"><span class="numero">4</span></div>
-                    <div class="dia-caixa"><span class="numero">5</span></div>
-                    <div class="dia-caixa"><span class="numero">6</span></div>
-                    <div class="dia-caixa"><span class="numero">7</span>📄</div>
-                    <div class="dia-caixa"><span class="numero">8</span></div>
-                    <div class="dia-caixa"><span class="numero">9</span></div>
-                    <div class="dia-caixa"><span class="numero">10</span>🖼️</div>
-                    <div class="dia-caixa"><span class="numero">11</span></div>
-                    <div class="dia-caixa"><span class="numero">12</span></div>
-                    <div class="dia-caixa"><span class="numero">13</span></div>
-                    <div class="dia-caixa"><span class="numero">14</span></div>
-                    <div class="dia-caixa"><span class="numero">15</span></div>
-                    <div class="dia-caixa"><span class="numero">16</span>📎</div>
-                    <div class="dia-caixa"><span class="numero">17</span></div>
-                    <div class="dia-caixa"><span class="numero">18</span></div>
-                    <div class="dia-caixa"><span class="numero">19</span></div>
-                    <div class="dia-caixa"><span class="numero">20</span></div>
-                    <div class="dia-caixa"><span class="numero">21</span>🖼️</div>
-                    <div class="dia-caixa"><span class="numero">22</span></div>
-                    <div class="dia-caixa"><span class="numero">23</span></div>
-                    <div class="dia-caixa"><span class="numero">24</span></div>
-                    <div class="dia-caixa"><span class="numero">25</span></div>
-                    <div class="dia-caixa"><span class="numero">26</span></div>
-                    <div class="dia-caixa"><span class="numero">27</span></div>
-                    <div class="dia-caixa"><span class="numero">28</span></div>
-                    <div class="dia-caixa"><span class="numero">29</span></div>
-                    <div class="dia-caixa"><span class="numero">30</span></div>
-                    <div class="dia-caixa"><span class="numero">31</span>📄</div>
-                    <!-- grade completa, alguns dias com ícone de documento/foto pequeno -->
-                </div>
-            </div>
-
-            <!-- LOCAL PARA FOTO – APARECE PEQUENO, LIMPO, CABE NA IMPRESSÃO -->
-            <div class="area-foto-pequena">
-                <div class="titulo-secao">📷 foto / anexo</div>
-                <div class="simulacro-foto">
-                    <span class="icone-foto">🖼️ — —</span>
-                    <span style="background: #003f6b; color: white; padding: 2px 12px; font-size: 0.7rem; letter-spacing: 2px;">IMAGEM</span>
-                    <span class="texto-foto">📁 croqui_btx.jpg</span>
-                    <span class="texto-foto" style="margin-top: 2px;">📄 memoria.pdf</span>
-                </div>
-                <p style="color: #002f55; font-size: 0.6rem; margin-top: 0.7rem; border-left: 4px solid #003f6b; padding-left: 8px;">
-                    ⚡ impressão reduzida · foto aparece pequena
-                </p>
-            </div>
-        </div>
-
-        <!-- MEMÓRIA BOA – CAPACIDADE DE ARMAZENAMENTO (TEXTO AZUL) -->
-        <div class="memoria-boa">
-            <span class="memoria-badge">💾 MEMÓRIA BTX · 128GB</span>
-            <div class="capacidade">
-                <span class="chip">📘 42 documentos</span>
-                <span class="chip">📸 18 fotos</span>
-                <span class="chip">⚡ 87GB livres</span>
-                <span class="chip">🗂️ projeto A</span>
-            </div>
-        </div>
-
-        <!-- RODAPÉ: CANTO INFERIOR DIREITO (desenvolvido por BTX TECH + telefone) -->
-        <div class="rodape-direito">
-            <div class="assinatura-btx">
-                desenvolvido por BTX TECH<br>
-                <span class="fone">☎ 999873835</span>
-            </div>
-        </div>
-
-    </div> <!-- fim bloco-btx -->
-
-    <!-- observação transparente: borda em volta da página já ativa -->
-    <div style="font-size: 0.6rem; color: #1f4a6e; margin-top: 1rem; text-align: center; border-left: 5px solid #003f6b; padding: 0.3rem 1rem; background: #ebf2fa;">
-        ◆ calendário mensal ◆ foto reduzida ◆ memória expansiva ◆ impressão com borda completa ◆
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>Agenda BTX</h1>
+        <div class="sub">offline • memória • anexos • backup</div>
+      </div>
     </div>
+
+    <div class="actions">
+      <span id="autosavePill" class="pill">autosave: ligado</span>
+      <button class="primary" id="btnSave">💾 Salvar</button>
+      <button class="good" id="btnAttach">📎 Anexar</button>
+      <button id="btnPrint">🖨️ Imprimir</button>
+      <button id="btnExport">⬇️ Exportar backup</button>
+      <button id="btnImport">⬆️ Importar backup</button>
+      <button class="danger" id="btnClearDay">🧨 Limpar dia</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Editor (top) -->
+    <section class="panel" id="editorPanel">
+      <div class="editorHead">
+        <div class="left">
+          <div class="dateLine">
+            <div class="dateTitle" id="dateTitle">Dia selecionado</div>
+            <span class="pill" id="attachCount">0 anexos</span>
+          </div>
+          <div class="small" id="dateSub">Clique no calendário para escolher o dia.</div>
+        </div>
+        <div class="status" id="statusLine">Pronto.</div>
+      </div>
+
+      <div class="editorBody">
+        <div class="noteArea">
+          <div class="boxTitle">
+            <h2>📝 Bloco de notas (sem limite)</h2>
+            <span class="hint">dica: Ctrl+P ou botão Imprimir</span>
+          </div>
+          <textarea id="noteText" placeholder="Escreva tudo aqui… sem frescura, sem limite. Isso fica salvo offline."></textarea>
+        </div>
+
+        <aside class="side">
+          <div class="boxTitle">
+            <h2>📦 Caixa de anexos (1 caixa só — do jeito certo)</h2>
+            <span class="hint">salvo no aparelho</span>
+          </div>
+          <div class="attachList" id="attachList">
+            <div class="hint">Nenhum anexo ainda. Clique em “Anexar”.</div>
+          </div>
+          <div class="hint">
+            Na impressão: anexos aparecem em espaço pequeno (miniaturas/nomes).
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Bottom: notes list + calendar -->
+    <section class="bottom">
+      <section class="panel" id="notesPanel">
+        <div class="notesPanelHead">
+          <h2>📚 Notas salvas (histórico)</h2>
+          <div class="search">
+            <input type="search" id="searchBox" placeholder="Buscar por texto ou data (ex: 2026-02)…" />
+            <span class="pill" id="totalNotes">0 notas</span>
+          </div>
+        </div>
+        <div class="notesList" id="notesList"></div>
+      </section>
+
+      <section class="panel" id="calendarPanel">
+        <div class="calHead">
+          <button class="mutedBtn" id="prevMonth">◀</button>
+          <div class="month" id="monthLabel">Mês</div>
+          <button class="mutedBtn" id="nextMonth">▶</button>
+        </div>
+        <div class="calGrid">
+          <div class="dow">
+            <div>DOM</div><div>SEG</div><div>TER</div><div>QUA</div><div>QUI</div><div>SEX</div><div>SÁB</div>
+          </div>
+          <div class="days" id="daysGrid"></div>
+        </div>
+      </section>
+    </section>
+
+    <!-- Print-only panel -->
+    <section class="panel" id="printPanel" style="display:none;">
+      <div class="printWrap">
+        <div class="printTitle">Agenda BTX</div>
+        <div class="printMeta" id="printMeta">Data:</div>
+        <div class="printNote" id="printNote"></div>
+
+        <div class="printAtt" id="printAttBox">
+          <h3>Anexos (mini)</h3>
+          <div class="attRow" id="printAttRow"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- hidden inputs -->
+    <input id="filePicker" type="file" multiple />
+    <input id="importPicker" type="file" accept="application/json" />
+  </main>
+
+<script>
+/** =========================
+ *  Agenda BTX Offline
+ *  - IndexedDB (notas + anexos)
+ *  - Export/Import backup JSON (com base64)
+ *  - Calendário mês + seleção
+ *  - Impressão com miniaturas pequenas
+ * ========================= */
+
+const DB_NAME = "agenda_btx_db";
+const DB_VER  = 1;
+const STORE   = "notes";
+
+let db = null;
+
+const $ = (id)=>document.getElementById(id);
+
+const state = {
+  selectedDate: toISODate(new Date()),
+  monthCursor: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  currentNote: { date: "", text: "", attachments: [], updatedAt: 0 },
+  autosaveTimer: null,
+  knownDatesWithNotes: new Set(), // usado pra marcar bolinhas no calendário
+};
+
+init();
+
+async function init(){
+  await openDB();
+  hookUI();
+  await rebuildKnownDates();
+  renderCalendar();
+  await loadDate(state.selectedDate);
+  await renderNotesList();
+  setStatus("Pronto. Memória offline ativa.", "ok");
+}
+
+function hookUI(){
+  $("btnSave").addEventListener("click", saveNow);
+  $("btnAttach").addEventListener("click", ()=> $("filePicker").click());
+  $("filePicker").addEventListener("change", handleFiles);
+  $("btnPrint").addEventListener("click", printCurrent);
+  $("btnExport").addEventListener("click", exportBackup);
+  $("btnImport").addEventListener("click", ()=> $("importPicker").click());
+  $("importPicker").addEventListener("change", importBackup);
+  $("btnClearDay").addEventListener("click", clearDay);
+
+  $("prevMonth").addEventListener("click", ()=>{
+    state.monthCursor = new Date(state.monthCursor.getFullYear(), state.monthCursor.getMonth()-1, 1);
+    renderCalendar();
+  });
+  $("nextMonth").addEventListener("click", ()=>{
+    state.monthCursor = new Date(state.monthCursor.getFullYear(), state.monthCursor.getMonth()+1, 1);
+    renderCalendar();
+  });
+
+  $("noteText").addEventListener("input", ()=>{
+    state.currentNote.text = $("noteText").value;
+    scheduleAutosave();
+    setStatus("Editando… (autosave em 800ms)", "warn");
+  });
+
+  $("searchBox").addEventListener("input", debounce(async ()=>{
+    await renderNotesList($("searchBox").value.trim());
+  }, 250));
+}
+
+function scheduleAutosave(){
+  clearTimeout(state.autosaveTimer);
+  state.autosaveTimer = setTimeout(()=> saveNow(true), 800);
+}
+
+async function saveNow(isAuto=false){
+  const note = {
+    date: state.selectedDate,
+    text: $("noteText").value || "",
+    attachments: state.currentNote.attachments || [],
+    updatedAt: Date.now()
+  };
+
+  await putNote(note);
+  state.currentNote = note;
+
+  state.knownDatesWithNotes.add(note.date);
+  updateAttachUI();
+  renderCalendar(); // só redesenha marcadores
+  await renderNotesList($("searchBox").value.trim());
+
+  setStatus(isAuto ? "Autosave OK." : "Salvo com sucesso.", "ok");
+}
+
+async function clearDay(){
+  const d = state.selectedDate;
+  const ok = confirm(`Limpar tudo do dia ${d}? (texto + anexos)`);
+  if(!ok) return;
+  await deleteNote(d);
+
+  state.currentNote = { date: d, text:"", attachments:[], updatedAt:0 };
+  $("noteText").value = "";
+  updateAttachUI();
+
+  await rebuildKnownDates();
+  renderCalendar();
+  await renderNotesList($("searchBox").value.trim());
+
+  setStatus("Dia limpo.", "ok");
+}
+
+async function handleFiles(ev){
+  const files = Array.from(ev.target.files || []);
+  if(!files.length) return;
+
+  setStatus("Lendo anexos…", "warn");
+
+  for(const f of files){
+    const dataUrl = await fileToDataURL(f);
+    state.currentNote.attachments.push({
+      id: cryptoRandom(),
+      name: f.name,
+      type: f.type || "application/octet-stream",
+      size: f.size || 0,
+      dataUrl
+    });
+  }
+
+  ev.target.value = ""; // permite anexar o mesmo arquivo de novo se quiser
+  updateAttachUI();
+  await saveNow(true);
+}
+
+function updateAttachUI(){
+  const list = $("attachList");
+  const atts = state.currentNote.attachments || [];
+  $("attachCount").textContent = `${atts.length} anexos`;
+
+  if(!atts.length){
+    list.innerHTML = `<div class="hint">Nenhum anexo ainda. Clique em “Anexar”.</div>`;
+    return;
+  }
+
+  list.innerHTML = "";
+  for(const a of atts){
+    const item = document.createElement("div");
+    item.className = "attachItem";
+
+    const thumb = document.createElement("div");
+    thumb.className = "thumb";
+
+    const isImg = (a.type||"").startsWith("image/");
+    if(isImg){
+      const img = document.createElement("img");
+      img.src = a.dataUrl;
+      img.alt = a.name;
+      thumb.appendChild(img);
+    }else{
+      thumb.textContent = "DOC";
+      thumb.style.fontFamily = "var(--mono)";
+      thumb.style.color = "rgba(234,241,255,.85)";
+      thumb.style.fontSize = "12px";
+    }
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.innerHTML = `
+      <div class="name" title="${escapeHtml(a.name)}">${escapeHtml(a.name)}</div>
+      <div class="type">${escapeHtml(a.type || "arquivo")} • ${formatBytes(a.size||0)}</div>
+    `;
+
+    const actions = document.createElement("div");
+    actions.style.display="flex";
+    actions.style.gap="6px";
+
+    const btnOpen = document.createElement("button");
+    btnOpen.className="iconBtn";
+    btnOpen.textContent = "Abrir";
+    btnOpen.addEventListener("click", ()=>{
+      // abre em nova aba (offline)
+      const w = window.open();
+      if(!w) return alert("Bloqueou popup. Permita abrir nova aba.");
+      w.document.write(`<title>${escapeHtml(a.name)}</title>`);
+      if(isImg){
+        w.document.write(`<img src="${a.dataUrl}" style="max-width:100%;height:auto;display:block;margin:0 auto">`);
+      }else{
+        w.document.write(`<iframe src="${a.dataUrl}" style="border:0;width:100%;height:100vh"></iframe>`);
+      }
+      w.document.close();
+    });
+
+    const btnDel = document.createElement("button");
+    btnDel.className="iconBtn danger";
+    btnDel.textContent = "Remover";
+    btnDel.addEventListener("click", async ()=>{
+      const ok = confirm(`Remover anexo:\n${a.name}?`);
+      if(!ok) return;
+      state.currentNote.attachments = atts.filter(x=>x.id !== a.id);
+      updateAttachUI();
+      await saveNow(true);
+    });
+
+    actions.appendChild(btnOpen);
+    actions.appendChild(btnDel);
+
+    item.appendChild(thumb);
+    item.appendChild(meta);
+    item.appendChild(actions);
+
+    list.appendChild(item);
+  }
+}
+
+async function loadDate(isoDate){
+  state.selectedDate = isoDate;
+
+  const note = await getNote(isoDate);
+  if(note){
+    state.currentNote = note;
+    $("noteText").value = note.text || "";
+  }else{
+    state.currentNote = { date: isoDate, text:"", attachments:[], updatedAt:0 };
+    $("noteText").value = "";
+  }
+
+  const dt = new Date(isoDate + "T00:00:00");
+  $("dateTitle").textContent = `📅 ${prettyDate(dt)} (${isoDate})`;
+  $("dateSub").textContent = "Tudo que você escrever aqui fica salvo no aparelho (offline).";
+
+  updateAttachUI();
+  renderCalendarSelection();
+}
+
+function renderCalendar(){
+  const m = state.monthCursor;
+  const monthName = m.toLocaleDateString("pt-BR", { month:"long", year:"numeric" });
+  $("monthLabel").textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+  const first = new Date(m.getFullYear(), m.getMonth(), 1);
+  const startDow = first.getDay(); // 0 dom
+  const daysInMonth = new Date(m.getFullYear(), m.getMonth()+1, 0).getDate();
+
+  // para completar grid, puxamos dias do mês anterior
+  const prevDays = new Date(m.getFullYear(), m.getMonth(), 0).getDate();
+
+  const grid = $("daysGrid");
+  grid.innerHTML = "";
+
+  // 6 semanas (42 cells) - bem estável e sem “tremer”
+  for(let i=0;i<42;i++){
+    const cell = document.createElement("div");
+    cell.className = "day";
+
+    let dayNum, cellDate, muted=false;
+
+    if(i < startDow){
+      dayNum = prevDays - (startDow - 1 - i);
+      const d = new Date(m.getFullYear(), m.getMonth()-1, dayNum);
+      cellDate = toISODate(d);
+      muted=true;
+    }else if(i >= startDow + daysInMonth){
+      dayNum = i - (startDow + daysInMonth) + 1;
+      const d = new Date(m.getFullYear(), m.getMonth()+1, dayNum);
+      cellDate = toISODate(d);
+      muted=true;
+    }else{
+      dayNum = (i - startDow) + 1;
+      const d = new Date(m.getFullYear(), m.getMonth(), dayNum);
+      cellDate = toISODate(d);
+    }
+
+    if(muted) cell.classList.add("muted");
+
+    const top = document.createElement("div");
+    top.className = "n";
+
+    const left = document.createElement("span");
+    left.textContent = dayNum;
+
+    const right = document.createElement("span");
+    if(state.knownDatesWithNotes.has(cellDate)) {
+      const dot = document.createElement("span");
+      dot.className = "dot";
+      right.appendChild(dot);
+    }
+
+    top.appendChild(left);
+    top.appendChild(right);
+
+    cell.appendChild(top);
+
+    cell.addEventListener("click", async ()=>{
+      // se clicou em dia de outro mês, move cursor pro mês dele
+      const clicked = new Date(cellDate + "T00:00:00");
+      state.monthCursor = new Date(clicked.getFullYear(), clicked.getMonth(), 1);
+      renderCalendar();
+      await loadDate(cellDate);
+    });
+
+    grid.appendChild(cell);
+  }
+
+  renderCalendarSelection();
+}
+
+function renderCalendarSelection(){
+  const days = Array.from(document.querySelectorAll(".day"));
+  for(const el of days){
+    el.classList.remove("sel");
+  }
+  // marca selecionado
+  // como a grid não tem data guardada no DOM, re-descobrimos usando posição + mês,
+  // MAS mais simples: na renderCalendar acima a seleção é refeita via re-render.
+  // Então aqui, só fazemos um re-render leve:
+  // Vamos aplicar sel comparando pelo texto do número + mês/ano atual? Pode falhar.
+  // Em vez disso: re-render completo já chama selection, e loadDate chama selection.
+  // Mantemos simples: pinta o dia da seleção apenas se for do mês cursor e bate número.
+  const sel = new Date(state.selectedDate + "T00:00:00");
+  if(sel.getFullYear() !== state.monthCursor.getFullYear() || sel.getMonth() !== state.monthCursor.getMonth()) return;
+
+  const dayNum = sel.getDate();
+  // encontra primeiro dia não-muted com número correspondente
+  for(const el of days){
+    if(el.classList.contains("muted")) continue;
+    const n = el.querySelector(".n span");
+    if(n && Number(n.textContent) === dayNum){
+      el.classList.add("sel");
+      break;
+    }
+  }
+}
+
+async function renderNotesList(filter=""){
+  const list = $("notesList");
+  const notes = await getAllNotes(); // retorna ordenado por data desc
+  $("totalNotes").textContent = `${notes.length} notas`;
+
+  const q = (filter || "").toLowerCase();
+
+  const filtered = notes.filter(n=>{
+    if(!q) return true;
+    const text = (n.text || "").toLowerCase();
+    const d = (n.date || "").toLowerCase();
+    return text.includes(q) || d.includes(q);
+  });
+
+  list.innerHTML = "";
+  if(!filtered.length){
+    list.innerHTML = `<div class="hint">Nada encontrado.</div>`;
+    return;
+  }
+
+  for(const n of filtered){
+    const card = document.createElement("div");
+    card.className = "noteCard";
+    const dt = new Date((n.date||"") + "T00:00:00");
+    const attCount = (n.attachments||[]).length;
+
+    card.innerHTML = `
+      <div class="row">
+        <div class="d">${escapeHtml(n.date)} • ${escapeHtml(prettyDate(dt))}</div>
+        <div class="tag">${attCount} anexo(s)</div>
+      </div>
+      <div class="preview">${escapeHtml((n.text||"").trim() || "— sem texto —")}</div>
+    `;
+
+    card.addEventListener("click", async ()=>{
+      // move calendário para o mês da nota
+      const d = new Date(n.date + "T00:00:00");
+      state.monthCursor = new Date(d.getFullYear(), d.getMonth(), 1);
+      renderCalendar();
+      await loadDate(n.date);
+      window.scrollTo({top:0, behavior:"smooth"});
+    });
+
+    list.appendChild(card);
+  }
+}
+
+function printCurrent(){
+  // monta painel de impressão
+  const dt = new Date(state.selectedDate + "T00:00:00");
+  $("printMeta").textContent = `Data: ${state.selectedDate} • ${prettyDate(dt)}`;
+
+  const text = ($("noteText").value || "").trim();
+  $("printNote").textContent = text || "— sem texto —";
+
+  const atts = state.currentNote.attachments || [];
+  const row = $("printAttRow");
+  row.innerHTML = "";
+
+  if(!atts.length){
+    $("printAttBox").style.display = "block";
+    row.innerHTML = `<div class="noPrintNote">Sem anexos.</div>`;
+  }else{
+    $("printAttBox").style.display = "block";
+    for(const a of atts.slice(0, 12)){ // impressão limpa: mostra até 12 minis
+      const mini = document.createElement("div");
+      mini.className = "attMini";
+      const isImg = (a.type||"").startsWith("image/");
+      mini.innerHTML = `
+        ${isImg ? `<img src="${a.dataUrl}" alt="${escapeHtml(a.name)}">` : `<img src="${placeholderDocThumb()}" alt="doc">`}
+        <div class="fn" title="${escapeHtml(a.name)}">${escapeHtml(a.name)}</div>
+      `;
+      row.appendChild(mini);
+    }
+    if(atts.length > 12){
+      const mini = document.createElement("div");
+      mini.className = "attMini";
+      mini.innerHTML = `<div class="fn">+${atts.length-12} anexos…</div>`;
+      row.appendChild(mini);
+    }
+  }
+
+  // chama print
+  window.print();
+}
+
+/** =========================
+ *  Backup export/import
+ * ========================= */
+
+async function exportBackup(){
+  setStatus("Gerando backup…", "warn");
+  const notes = await getAllNotesRaw(); // sem ordenar? tanto faz
+
+  const payload = {
+    app: "Agenda BTX",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    notes
+  };
+
+  const blob = new Blob([JSON.stringify(payload)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `agenda-btx-backup-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+
+  setStatus("Backup exportado.", "ok");
+}
+
+async function importBackup(ev){
+  const file = (ev.target.files || [])[0];
+  ev.target.value = "";
+  if(!file) return;
+
+  const ok = confirm("Importar backup vai MESCLAR com o que você já tem.\n(Se tiver mesma data, substitui.)\nContinuar?");
+  if(!ok) return;
+
+  setStatus("Importando…", "warn");
+
+  const text = await file.text();
+  let payload = null;
+  try{ payload = JSON.parse(text); }catch(e){
+    setStatus("Backup inválido (JSON quebrado).", "bad");
+    alert("Backup inválido.");
+    return;
+  }
+
+  const notes = payload?.notes;
+  if(!Array.isArray(notes)){
+    setStatus("Backup inválido (sem notes).", "bad");
+    alert("Backup inválido: sem campo notes.");
+    return;
+  }
+
+  // grava um por um
+  for(const n of notes){
+    if(!n || !n.date) continue;
+    // normaliza
+    const safe = {
+      date: String(n.date).slice(0,10),
+      text: String(n.text || ""),
+      attachments: Array.isArray(n.attachments) ? n.attachments : [],
+      updatedAt: Number(n.updatedAt || Date.now())
+    };
+    await putNote(safe);
+  }
+
+  await rebuildKnownDates();
+  renderCalendar();
+  await renderNotesList($("searchBox").value.trim());
+  await loadDate(state.selectedDate);
+
+  setStatus("Importação concluída.", "ok");
+}
+
+/** =========================
+ *  IndexedDB
+ * ========================= */
+
+function openDB(){
+  return new Promise((resolve, reject)=>{
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = (e)=>{
+      const db = req.result;
+      if(!db.objectStoreNames.contains(STORE)){
+        const st = db.createObjectStore(STORE, { keyPath:"date" }); // date ISO YYYY-MM-DD
+        st.createIndex("updatedAt", "updatedAt");
+      }
+    };
+    req.onsuccess = ()=>{
+      db = req.result;
+      resolve();
+    };
+    req.onerror = ()=> reject(req.error);
+  });
+}
+
+function tx(mode="readonly"){
+  return db.transaction(STORE, mode).objectStore(STORE);
+}
+
+function getNote(date){
+  return new Promise((resolve, reject)=>{
+    const req = tx("readonly").get(date);
+    req.onsuccess = ()=> resolve(req.result || null);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+
+function putNote(note){
+  return new Promise((resolve, reject)=>{
+    const req = tx("readwrite").put(note);
+    req.onsuccess = ()=> resolve();
+    req.onerror = ()=> reject(req.error);
+  });
+}
+
+function deleteNote(date){
+  return new Promise((resolve, reject)=>{
+    const req = tx("readwrite").delete(date);
+    req.onsuccess = ()=> resolve();
+    req.onerror = ()=> reject(req.error);
+  });
+}
+
+async function getAllNotes(){
+  const notes = await getAllNotesRaw();
+  // ordena por data desc
+  notes.sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+  return notes;
+}
+
+function getAllNotesRaw(){
+  return new Promise((resolve, reject)=>{
+    const st = tx("readonly");
+    const req = st.getAll();
+    req.onsuccess = ()=> resolve(req.result || []);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+
+async function rebuildKnownDates(){
+  const notes = await getAllNotesRaw();
+  state.knownDatesWithNotes = new Set(notes.map(n=>n.date).filter(Boolean));
+}
+
+/** =========================
+ *  Utils
+ * ========================= */
+
+function toISODate(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+
+function prettyDate(d){
+  return d.toLocaleDateString("pt-BR", { weekday:"long", day:"2-digit", month:"long", year:"numeric" });
+}
+
+function setStatus(msg, kind=""){
+  const el = $("statusLine");
+  el.textContent = msg;
+  el.className = "status " + (kind || "");
+}
+
+function debounce(fn, ms){
+  let t=null;
+  return (...args)=>{
+    clearTimeout(t);
+    t=setTimeout(()=> fn(...args), ms);
+  };
+}
+
+function fileToDataURL(file){
+  return new Promise((resolve, reject)=>{
+    const r = new FileReader();
+    r.onload = ()=> resolve(r.result);
+    r.onerror = ()=> reject(r.error);
+    r.readAsDataURL(file);
+  });
+}
+
+function formatBytes(bytes){
+  if(bytes < 1024) return bytes + " B";
+  const kb = bytes/1024;
+  if(kb < 1024) return kb.toFixed(1) + " KB";
+  const mb = kb/1024;
+  return mb.toFixed(1) + " MB";
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function cryptoRandom(){
+  if(window.crypto?.randomUUID) return crypto.randomUUID();
+  return "id-" + Math.random().toString(16).slice(2) + Date.now().toString(16);
+}
+
+function placeholderDocThumb(){
+  // mini placeholder “tecnológico” em base64 (SVG)
+  const svg = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="240" height="160">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#63a7ff" stop-opacity=".35"/>
+        <stop offset="1" stop-color="#2f6bff" stop-opacity=".15"/>
+      </linearGradient>
+    </defs>
+    <rect width="240" height="160" rx="16" fill="url(#g)"/>
+    <rect x="14" y="14" width="212" height="132" rx="12" fill="rgba(0,0,0,.25)" stroke="rgba(255,255,255,.25)"/>
+    <text x="120" y="88" font-family="monospace" font-size="22" text-anchor="middle" fill="rgba(255,255,255,.85)">DOC</text>
+  </svg>`;
+  return "data:image/svg+xml;base64," + btoa(svg);
+}
+
+/* Seleciona hoje como padrão (mais “real”) */
+(async ()=>{
+  const today = toISODate(new Date());
+  state.selectedDate = today;
+})();
+</script>
 </body>
 </html>
