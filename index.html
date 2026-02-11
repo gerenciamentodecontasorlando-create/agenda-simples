@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda BTX · calendário simples</title>
+    <style>
+        /* █▓▒░ META AZUL – limpo, técnico, tom de comunicação interna ░▒▓█ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #eef3fc;  /* azul muito claro, quase gelo */
+            font-family: 'Courier New', Courier, 'Lucida Sans Typewriter', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+
+        /* ───── bloco principal – simula folha pautada azul ───── */
+        .btx-calendario {
+            max-width: 1100px;
+            width: 100%;
+            background: white;
+            box-shadow: 0 6px 0 #1f3a6b, 0 12px 24px rgba(0,35,70,0.12);
+            border-left: 6px solid #0a314e;   /* lateral forte – igual borda de caderno */
+            border-top: 6px solid #0a314e;
+            border-right: 1px solid #cad9ee;   /* só pra não ficar solto, mantém clean */
+            border-bottom: 1px solid #cad9ee;
+            padding: 2rem 1.8rem 1.8rem 1.8rem;
+            position: relative;
+            transition: 0.2s;
+        }
+
+        /* ───── TÍTULO EXATO: agenda btx (caixa baixa, como solicitado) ───── */
+        .titulo-agenda {
+            color: #003b6f;          /* azul meta / PETRÓLEO */
+            font-size: 2.3rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            text-transform: lowercase;
+            border-bottom: 3px solid #003b6f;
+            padding-bottom: 0.5rem;
+            margin-top: -0.2rem;
+            margin-bottom: 2.2rem;
+            font-family: 'Courier New', 'Andale Mono', monospace;
+            word-break: break-word;
+            display: inline-block;
+            border-bottom-style: double;
+        }
+
+        /* estrutura de calendário → grelha organizada, fácil de achar */
+        .grade-meses {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* cada mês – lembra folhinha analógica, mas com bordas fortes */
+        .mes-card {
+            border-left: 5px solid #214e7a;
+            border-top: 5px solid #214e7a;
+            border-right: 1px solid #a0bbd9;
+            border-bottom: 1px solid #a0bbd9;
+            background: #fbfdff;
+            padding: 1rem 0.8rem 1rem 0.8rem;
+            box-shadow: 2px 2px 0 #b3c9e0;
+        }
+
+        .nome-mes {
+            color: #1f4a74;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px dashed #1f4a74;
+            padding-bottom: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* dias da semana – azul cobalto legível */
+        .dias-semana {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            color: #0e3a5e;
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .dias-semana span {
+            padding: 0.2rem 0;
+            text-align: center;
+            border-bottom: 1px solid #7fa1c3;
+        }
+
+        /* células dos dias – com espaço para anexos pequenos */
+        .dias-grade {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+        }
+
+        .dia-bloco {
+            background-color: #ffffff;
+            border-left: 2px solid #244c6e;
+            border-top: 2px solid #244c6e;
+            border-right: 0.5px solid #dbe4ed;
+            border-bottom: 0.5px solid #dbe4ed;
+            min-height: 68px;
+            padding: 5px 4px;
+            font-size: 0.75rem;
+            color: #0e3a5e;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            position: relative;
+            transition: 0.05s;
+            word-break: break-word;
+        }
+
+        .numero-dia {
+            font-weight: 700;
+            color: #0d4572;
+            margin-bottom: 3px;
+            font-size: 0.8rem;
+            background: #f0f7ff;
+            padding: 0 2px;
+            border-bottom: 1px dotted #4d7eb3;
+        }
+
+        /* ───── SIMULADOR DE ARQUIVOS PEQUENOS / FOTOS ───── */
+        .anexo-miniatura {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 2px;
+            width: 100%;
+        }
+
+        .mini-doc {
+            background: #e4edfa;
+            color: #003f6b;
+            font-size: 0.55rem;
+            padding: 2px 5px;
+            border-left: 2px solid #103e62;
+            border-top: 2px solid #103e62;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-family: 'Courier New', monospace;
+            line-height: 1.1;
+            max-width: 100%;
+            box-shadow: 1px 1px 0 #809bb3;
+        }
+
+        .mini-foto {
+            background: #dae7f5;
+            border-left: 2px solid #1b4b6e;
+            border-top: 2px solid #1b4b6e;
+            padding: 2px 5px;
+            font-size: 0.55rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            color: #03314e;
+        }
+
+        /* ícone simbólico */
+        .icone-arquivo::before {
+            content: "📄 ";
+            font-size: 0.6rem;
+        }
+        .icone-foto::before {
+            content: "📷 ";
+            font-size: 0.6rem;
+        }
+
+        /* ───── ÁREA DE MEMÓRIA / CAPACIDADE BOA – SIMBÓLICA, MAS ESTRUTURADA ───── */
+        .memoria-visual {
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            border-left: 6px solid #0a314e;
+            border-top: 2px solid #0a314e;
+            background: #f1f7fe;
+            padding: 0.8rem 1.2rem;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            color: #0d3b60;
+            font-size: 0.85rem;
+        }
+
+        .memoria-tag {
+            font-weight: 700;
+            color: #003153;
+            background: white;
+            padding: 6px 15px;
+            border-left: 5px solid #1e4972;
+            border-top: 5px solid #1e4972;
+            border-right: 1px solid #b7cfec;
+            border-bottom: 1px solid #b7cfec;
+            font-family: 'Courier New', monospace;
+        }
+
+        .memoria-slots {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .slot-arquivo {
+            background: white;
+            border-left: 4px solid #244c6e;
+            border-top: 4px solid #244c6e;
+            padding: 5px 12px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #002b4a;
+        }
+
+        /* ───── RODAPÉ COM ASSINATURA BTX TECH ───── */
+        .rodape-btx {
+            margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;  /* canto inferior direito */
+            width: 100%;
+            border-top: 2px solid #194166;
+            padding-top: 0.8rem;
+            color: #194166;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .assinatura {
+            text-align: right;
+            border-left: 6px solid #1f3e5c;
+            border-top: 2px solid #1f3e5c;
+            padding: 0.6rem 1.2rem;
+            background: #f3f8ff;
+            line-height: 1.4;
+        }
+        .telefone {
+            font-size: 1rem;
+            color: #001f3f;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-top: 3px;
+        }
+
+        /* ───── ESTILO DE IMPRESSÃO – TUDO AZUL VISÍVEL, BORDAS FORTES ───── */
+        @media print {
+            body {
+                background: white;
+                padding: 0.2in;
+            }
+            .btx-calendario {
+                box-shadow: none;
+                border-left: 6px solid #0a314e;
+                border-top: 6px solid #0a314e;
+                border-right: 1px solid #aaa;
+                border-bottom: 1px solid #aaa;
+                padding: 0.3in;
+            }
+            .mes-card, .dia-bloco, .memoria-visual, .assinatura {
+                border-color: #0a314e;
+                break-inside: avoid;
+            }
+            .rodape-btx {
+                border-top: 3px solid #0a314e;
+            }
+        }
+
+        /* responsivo : tablets */
+        @media (max-width: 800px) {
+            .grade-meses {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 550px) {
+            .grade-meses {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="btx-calendario">
+        
+        <!-- título exato: agenda btx -->
+        <div class="titulo-agenda">agenda btx</div>
+
+        <!-- CALENDÁRIO VISUAL COM MESES (EXEMPLO: JAN, FEV, MAR) 
+             bordas superiores e laterais fortes, totalmente organizado -->
+        <div class="grade-meses">
+            
+            <!-- MÊS 1 -->
+            <div class="mes-card">
+                <div class="nome-mes">JANEIRO</div>
+                <div class="dias-semana">
+                    <span>seg</span><span>ter</span><span>qua</span><span>qui</span><span>sex</span><span>sáb</span><span>dom</span>
+                </div>
+                <div class="dias-grade">
+                    <!-- dias fictícios – alguns recebem mini docs/fotos para demonstrar "salvar documentos/fotos pequenos" -->
+                    <div class="dia-bloco"><span class="numero-dia">1</span><div class="anexo-miniatura"><span class="mini-doc icone-arquivo">contrato</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">2</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">3</span><div class="anexo-miniatura"><span class="mini-foto icone-foto">obra</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">4</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">5</span><div class="anexo-miniatura"><span class="mini-doc icone-arquivo">pdf</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">6</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">7</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">8</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">9</span><div class="anexo-miniatura"><span class="mini-foto icone-foto">projeto</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">10</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">11</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">12</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">13</span><div class="anexo-miniatura"><span class="mini-doc icone-arquivo">nota</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">14</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">15</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">16</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">17</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">18</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">19</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">20</span><div class="anexo-miniatura"><span class="mini-foto icone-foto">planta</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">21</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">22</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">23</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">24</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">25</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">26</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">27</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">28</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">29</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">30</span><div class="anexo-miniatura"><span class="mini-doc icone-arquivo">memória</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">31</span></div>
+                </div>
+            </div>
+            
+            <!-- MÊS 2 -->
+            <div class="mes-card">
+                <div class="nome-mes">FEVEREIRO</div>
+                <div class="dias-semana">
+                    <span>seg</span><span>ter</span><span>qua</span><span>qui</span><span>sex</span><span>sáb</span><span>dom</span>
+                </div>
+                <div class="dias-grade">
+                    <div class="dia-bloco"><span class="numero-dia">1</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">2</span><div class="anexo-miniatura"><span class="mini-foto icone-foto">croqui</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">3</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">4</span><div class="anexo-miniatura"><span class="mini-doc icone-arquivo">.txt</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">5</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">6</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">7</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">8</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">9</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">10</span><div class="anexo-miniatura"><span class="mini-doc icone-arquivo">backup</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">11</span></div>
+                    <!-- continuação... alguns dias com anexos -->
+                    <div class="dia-bloco"><span class="numero-dia">12</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">13</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">14</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">15</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">16</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">17</span><div class="anexo-miniatura"><span class="mini-foto icone-foto">mapa</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">18</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">19</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">20</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">21</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">22</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">23</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">24</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">25</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">26</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">27</span><div class="anexo-miniatura"><span class="mini-doc icone-arquivo">planilha</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">28</span></div>
+                </div>
+            </div>
+
+            <!-- MÊS 3: MARÇO, também com slots de mídia e docs -->
+            <div class="mes-card">
+                <div class="nome-mes">MARÇO</div>
+                <div class="dias-semana">
+                    <span>seg</span><span>ter</span><span>qua</span><span>qui</span><span>sex</span><span>sáb</span><span>dom</span>
+                </div>
+                <div class="dias-grade">
+                    <div class="dia-bloco"><span class="numero-dia">1</span><div class="anexo-miniatura"><span class="mini-doc icone-arquivo">ata</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">2</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">3</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">4</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">5</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">6</span><div class="anexo-miniatura"><span class="mini-foto icone-foto">site</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">7</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">8</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">9</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">10</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">11</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">12</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">13</span><div class="anexo-miniatura"><span class="mini-doc icone-arquivo">rascunho</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">14</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">15</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">16</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">17</span><div class="anexo-miniatura"><span class="mini-doc icone-arquivo">.dwg</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">18</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">19</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">20</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">21</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">22</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">23</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">24</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">25</span><div class="anexo-miniatura"><span class="mini-foto icone-foto">layout</span></div></div>
+                    <div class="dia-bloco"><span class="numero-dia">26</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">27</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">28</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">29</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">30</span></div>
+                    <div class="dia-bloco"><span class="numero-dia">31</span><div class="anexo-miniatura"><span class="mini-doc icone-arquivo">final</span></div></div>
+                </div>
+            </div>
+        </div> <!-- grade meses -->
+
+        <!-- MEMÓRIA BOA – CAPACIDADE VISUAL, EXPANSÍVEL -->
+        <div class="memoria-visual">
+            <span class="memoria-tag">💾 memória boa · 64GTX</span>
+            <div class="memoria-slots">
+                <span class="slot-arquivo">📁 31 documentos</span>
+                <span class="slot-arquivo">🖼️ 24 fotos</span>
+                <span class="slot-arquivo">📎 projetos</span>
+                <span class="slot-arquivo">🗂️ 2.4GB livre</span>
+            </div>
+        </div>
+
+        <!-- RODAPÉ INFERIOR DIREITO: desenvolvido por BTX TECH + telefone -->
+        <div class="rodape-btx">
+            <div class="assinatura">
+                desenvolvido por BTX TECH<br>
+                <span class="telefone">☏ 999873835</span>
+            </div>
+        </div>
+
+    </div> <!-- fecha .btx-calendario -->
+    
+    <!-- mensagem subliminar: impressão fiel e azul meta -->
+    <p style="font-size: 0.65rem; color: #2f5575; margin-top: 1rem; font-family: monospace; text-align: center; border-left: 3px solid #2f5575; padding-left: 8px;">
+        calendário BTX · bordas nítidas · arquivos & fotos em tamanho reduzido · pronto para imprimir
+    </p>
+</body>
+</html>
